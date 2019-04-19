@@ -20,7 +20,7 @@ public abstract class Simulator {
     protected String[] mainMem = new String[memLength];
 
     /**
-     * the input file of processes
+     * the input file of waitingProcesses
      */
     private File inputFile;
 
@@ -30,14 +30,22 @@ public abstract class Simulator {
     private UI ui;
 
     /**
-     * the waiting queue
+     * master process list
      */
     private List<Process> processes = new ArrayList<>();
 
+    /**
+     * the waiting queue
+     */
+    private List<Process> waitingProcesses = new ArrayList<>();
+
+    /**
+     * list of waitingProcesses to be removed from memory;
+     */
     private List<Process> toBeRemoved = new ArrayList<>();
 
     /**
-     * the processes which are currently in memory
+     * the waitingProcesses which are currently in memory
      */
     private List<Process> processesInMemory = new ArrayList<>();
 
@@ -95,46 +103,62 @@ public abstract class Simulator {
      * starts the sim
      */
     public void start() {
-        processes.forEach(this::addToMemory);
+        waitingProcesses.forEach(this::addToMemory);
         cleanUpProcesses();
         incrementThroughTime(0);
     }
 
     /**
-     * reads the input file and creates & adds processes to the waiting queue
+     * reads the input file and creates & adds waitingProcesses to the waiting queue
      */
     private void parseInputFile() {
         try {
             String[] lines = Utils.readFileToArray(inputFile);
             for (String line: lines) {
                 String[] tokens = line.trim().split(" ");
-                processes.add(
-                        new Process(tokens[0], Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]))
-                );
+                Process process = new Process(tokens[0], Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]));
+                waitingProcesses.add(process);
+                processes.add(process);
             }
-            ui.setInputData(String.join("\n", lines));
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void displayInputData() {
+        StringBuilder sb = new StringBuilder();
+        processes.forEach(
+                process -> {
+                    sb.append(process.getPid());
+                    sb.append(" - s: ");
+                    sb.append(process.getSize());
+                    sb.append(", d: ");
+                    sb.append(process.getDuration());
+                    sb.append("\n");
+                }
+        );
+        ui.setInputData(sb.toString());
     }
 
     /**
      * simply updates the UI
      */
     private void updateUI() {
+        displayInputData();
         displayMemory();
         ui.setCurrentTime(currentTime);
         ui.setTotalMemory(memLength);
-        ui.setWaitingProcesses(processes.size());
+        ui.setWaitingProcesses(waitingProcesses.size());
         ui.setFreeMemory(freeMem);
     }
 
     /**
-     * cleans up the waiting queue and removes completed processes from memory
+     * cleans up the waiting queue and removes completed waitingProcesses from memory
      */
     private void cleanUpProcesses() {
         for (Process process: processesInMemory) {
-            processes.remove(process);
+            waitingProcesses.remove(process);
         }
         processesInMemory = processesInMemory.stream().filter(process -> process.getTimeLeft() > 0).collect(Collectors.toList());
     }
@@ -198,7 +222,10 @@ public abstract class Simulator {
         }
     }
 
-
+    /**
+     * calls goToTime x number of times based on the input time
+     * @param time the time to go to
+     */
     public void incrementThroughTime(int time) {
         if (time > currentTime) {
             int increment = time - currentTime;
@@ -206,7 +233,7 @@ public abstract class Simulator {
                 goToTime(currentTime+1);
             }
         } else {
-            ui.append("cannot backwards in time...\n");
+            ui.append("cannot go backwards in time...\n");
         }
     }
 
@@ -229,13 +256,13 @@ public abstract class Simulator {
 
         // clean up
         cleanUpProcesses();
-        if (currentTime > 0 && processes.size() > 0 && DEFRAG) {
+        if (currentTime > 0 && waitingProcesses.size() > 0 && DEFRAG) {
             defragment(); // clear memory
             processesInMemory.forEach(this::addToMemory); // add everything back
         }
 
         // try to add the process in the waiting queue to memory
-        processes.forEach(this::addToMemory);
+        waitingProcesses.forEach(this::addToMemory);
         updateUI(); // update the ui after all the changes
 
     }
@@ -259,7 +286,7 @@ public abstract class Simulator {
     }
 
     /**
-     * updates the memory. removes completed processes
+     * updates the memory. removes completed waitingProcesses
      */
     private void updateMemory() {
         processesInMemory.forEach(
