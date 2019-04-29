@@ -71,7 +71,7 @@ public class Process {
      * @return if the process is completed
      */
     public boolean isDone() {
-        return timeLeft <= 0;
+        return duration <= 0;
     }
 
     /**

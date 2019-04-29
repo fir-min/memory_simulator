@@ -29,8 +29,8 @@ public class FirstFit extends Simulator {
         int e = 0;
         boolean fits = false;
         int count = 0;
-        while (e < memLength - 1) {
-            for (int i = e; i < memLength; i++) {
+        while (e < MEM_LENGTH - 1) {
+            for (int i = e; i < MEM_LENGTH; i++) {
                 if (mainMem[i].equals("#")) {
                     count ++;
                     if (count == process.getSize()) {

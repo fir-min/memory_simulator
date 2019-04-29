@@ -64,7 +64,7 @@ public class UI extends Application {
                 .prefHeight(400)
                 .wrapText(true)
                 .build();
-        programInput.setDisable(true);
+        //programInput.setDisable(true);
 
         ScrollPane programInputScrollPane = new ScrollPane();
         programInputScrollPane.setContent(programInput);
@@ -109,6 +109,7 @@ public class UI extends Application {
         r3.setToggleGroup(tg);
 
         CheckBox defrag = new CheckBox("Defragment Memory?");
+        defrag.setDisable(true);
 
         HBox hbox1 = new HBox(button, inputFile);
         hbox1.setSpacing(10);
@@ -130,7 +131,7 @@ public class UI extends Application {
         hbox2.setSpacing(20);
         hbox2.setPadding(new Insets(5, 12, 5, 12));
 
-        HBox hbox4 = new HBox(simTypes, r1, r2, r3, new Label("   |   "), defrag);
+        HBox hbox4 = new HBox(simTypes, r1, r2, r3);
         hbox4.setSpacing(10);
         hbox4.setPadding(new Insets(5, 12, 5, 12));
 

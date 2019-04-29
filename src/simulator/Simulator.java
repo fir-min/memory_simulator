@@ -12,12 +12,12 @@ public abstract class Simulator {
     /**
      * length of the memory
      */
-    protected int memLength = 100;
+    protected static final int MEM_LENGTH = 100;
 
     /**
      * array that represents the memory
      */
-    protected String[] mainMem = new String[memLength];
+    protected String[] mainMem = new String[MEM_LENGTH];
 
     /**
      * the input file of waitingProcesses
@@ -52,7 +52,7 @@ public abstract class Simulator {
     /**
      * free memory
      */
-    int freeMem = memLength;
+    int freeMem = MEM_LENGTH;
 
     /**
      * the symbol that represents free memory
@@ -133,7 +133,7 @@ public abstract class Simulator {
                     sb.append(process.getPid());
                     sb.append(" - s: ");
                     sb.append(process.getSize());
-                    sb.append(", d: ");
+                    sb.append(", t: ");
                     sb.append(process.getDuration());
                     sb.append("\n");
                 }
@@ -148,7 +148,7 @@ public abstract class Simulator {
         displayInputData();
         displayMemory();
         ui.setCurrentTime(currentTime);
-        ui.setTotalMemory(memLength);
+        ui.setTotalMemory(MEM_LENGTH);
         ui.setWaitingProcesses(waitingProcesses.size());
         ui.setFreeMemory(freeMem);
     }
@@ -193,8 +193,8 @@ public abstract class Simulator {
      * defragments the memory
      */
     private void defragment() {
-        ui.append("Attempting defragmentation...\n");
-        initMemory();
+        //ui.append("Attempting defragmentation...\n");
+        //initMemory();
     }
 
     /**
@@ -241,7 +241,7 @@ public abstract class Simulator {
      * move forward to a particular point in time in the simulation
      * @param time the time to go to
      */
-    public void goToTime(int time) {
+    private void goToTime(int time) {
 
         int timeToSubtract= currentTime == -1? 0: time - currentTime;
         currentTime = time;
@@ -291,7 +291,7 @@ public abstract class Simulator {
     private void updateMemory() {
         processesInMemory.forEach(
                 process -> {
-                    if (process.getDuration() <= 0) {
+                    if (process.isDone()) {
                         toBeRemoved.add(process);
                         deleteFromMemory(process);
                     }

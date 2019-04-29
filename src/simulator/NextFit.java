@@ -40,7 +40,7 @@ public class NextFit extends Simulator{
             pointer = process.getSize();
         }
 
-        if (pointer == -1 || (100 - pointer) < process.getSize()) {
+        if (pointer == -1 || (MEM_LENGTH - pointer) < process.getSize()) {
             pointer = 0;
         }
 
@@ -48,8 +48,8 @@ public class NextFit extends Simulator{
 
         boolean fits = false;
         int count = 0;
-        while (pointer < memLength - 1) {
-            for (int i = pointer; i < memLength; i++) {
+        while (pointer < MEM_LENGTH) {
+            for (int i = pointer; i < MEM_LENGTH; i++) {
                 if (mainMem[i].equals("#")) {
                     count ++;
                     if (count == process.getSize()) {
@@ -75,7 +75,7 @@ public class NextFit extends Simulator{
                 process.setEnd(end);
                 pointer = end;
 
-                if (pointer >= memLength || pointer == lastPointer ) {
+                if (pointer == lastPointer) {
                     pointer = -1;
                 }
                 lastPointer = pointer;
